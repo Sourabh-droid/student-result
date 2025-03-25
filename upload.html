@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Marks</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    h1, h2, h3 {
+      color: #4CAF50;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .form-group input:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Message Styles */
+    .error {
+      color: #ff4444;
+      margin-top: 10px;
+    }
+
+    .success {
+      color: #4CAF50;
+      margin-top: 10px;
+    }
+
+    /* Section Styles */
+    .section {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    /* Link Styles */
+    a {
+      color: #4CAF50;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Logout Button */
+    .logout-btn {
+      background-color: #f44336;
+      float: right;
+    }
+    .logout-btn:hover {
+      background-color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Upload, Update and Delete Student Marks</h1>
+
+    <!-- Logout Button -->
+    <div class="section">
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Upload Marks Section -->
+    <div class="section">
+      <h2>Upload Marks</h2>
+      <div class="form-group">
+        <label for="name">Student Name:</label>
+        <input type="text" id="name" placeholder="Enter Name">
+      </div>
+      <div class="form-group">
+        <label for="rollNumber">Roll Number:</label>
+        <input type="text" id="rollNumber" placeholder="Enter Roll Number">
+      </div>
+      <div class="form-group">
+        <label for="maths">Maths:</label>
+        <input type="number" id="maths" placeholder="Enter Marks" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label for="science">Science:</label>
+        <input type="number" id="science" placeholder="Enter Marks" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label for="socialScience">Social Science:</label>
+        <input type="number" id="socialScience" placeholder="Enter Marks" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label for="english">English:</label>
+        <input type="number" id="english" placeholder="Enter Marks" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label for="language">Language:</label>
+        <input type="number" id="language" placeholder="Enter Marks" min="0" max="100">
+      </div>
+      <div class="form-group">
+        <label for="computerScience">Computer Science:</label>
+        <input type="number" id="computerScience" placeholder="Enter Marks" min="0" max="100">
+      </div>
+      <button onclick="addMarks()">Add Marks</button>
+      <div id="message" class="error"></div>
+    </div>
+
+    <!-- Delete Marks Section -->
+    <div class="section">
+      <h2>Delete Marks</h2>
+      <div class="form-group">
+        <label for="deleteRollNumber">Roll Number:</label>
+        <input type="text" id="deleteRollNumber" placeholder="Enter Roll Number">
+      </div>
+      <button onclick="fetchStudentMarks()">Fetch Marks</button>
+      <div id="deleteMessage" class="error"></div>
+    </div>
+
+    <!-- Student Marks Table for Deletion -->
+    <div id="studentMarks" class="section" style="display: none;">
+      <h3>Student Marks</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Marks</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="marksTable"></tbody>
+      </table>
+    </div>
+
+    <!-- All Uploaded Marks Section -->
+    <div class="section">
+      <h2>All Uploaded Marks</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Roll Number</th>
+            <th>Maths</th>
+            <th>Science</th>
+            <th>Social Science</th>
+            <th>English</th>
+            <th>Language</th>
+            <th>Computer Science</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="allMarksTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Link to Student Login -->
+    <p><a href="index.html">Go to Student Login</a></p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Your Firebase configuration
+    const firebaseConfig = {
+  apiKey: "AIzaSyAIHEdFbNiRnsPWJ-8CkjdFi911jGoNJ3s",
+  authDomain: "student-result-portal-52f41.firebaseapp.com",
+  projectId: "student-result-portal-52f41",
+  storageBucket: "student-result-portal-52f41.firebasestorage.app",
+  messagingSenderId: "1072394976376",
+  appId: "1:1072394976376:web:4c839ab0f2cda36fb1818d"
+};
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Check authentication state
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        // Redirect to login if not authenticated
+        window.location.href = "admin-login.html";
+      } else {
+        // Load all marks when authenticated
+        displayAllMarks();
+      }
+    });
+
+    // Function to add/update marks
+    async function addMarks() {
+      const name = document.getElementById('name').value;
+      const rollNumber = document.getElementById('rollNumber').value;
+      const maths = parseInt(document.getElementById('maths').value);
+      const science = parseInt(document.getElementById('science').value);
+      const socialScience = parseInt(document.getElementById('socialScience').value);
+      const english = parseInt(document.getElementById('english').value);
+      const language = parseInt(document.getElementById('language').value);
+      const computerScience = parseInt(document.getElementById('computerScience').value);
+      const message = document.getElementById('message');
+
+      // Validate inputs
+      if (!name || !rollNumber || isNaN(maths) || isNaN(science) || 
+          isNaN(socialScience) || isNaN(english) || isNaN(language) || isNaN(computerScience)) {
+        message.textContent = 'Please fill all fields correctly.';
+        message.className = 'error';
+        return;
+      }
+
+      try {
+        // Create marks object
+        const marks = {
+          name: name,
+          rollNumber: rollNumber,
+          marks: {
+            Maths: maths,
+            Science: science,
+            SocialScience: socialScience,
+            English: english,
+            Language: language,
+            ComputerScience: computerScience
+          },
+          lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // Add/update document in Firestore
+        await db.collection('students').doc(rollNumber).set(marks);
+        
+        // Show success message
+        message.textContent = 'Marks added/updated successfully!';
+        message.className = 'success';
+        setTimeout(() => message.textContent = '', 3000);
+
+        // Clear the form
+        clearForm();
+
+        // Refresh the marks table
+        displayAllMarks();
+
+      } catch (error) {
+        message.textContent = 'Error saving marks: ' + error.message;
+        message.className = 'error';
+        console.error("Error adding document: ", error);
+      }
+    }
+
+    // Function to fetch student marks for deletion
+    async function fetchStudentMarks() {
+      const rollNumber = document.getElementById('deleteRollNumber').value;
+      const deleteMessage = document.getElementById('deleteMessage');
+      deleteMessage.textContent = '';
+
+      if (!rollNumber) {
+        deleteMessage.textContent = 'Please enter a roll number';
+        return;
+      }
+
+      try {
+        const docRef = db.collection('students').doc(rollNumber);
+        const docSnap = await docRef.get();
+
+        if (docSnap.exists) {
+          const student = docSnap.data();
+          document.getElementById('studentMarks').style.display = 'block';
+          
+          const marksTable = document.getElementById('marksTable');
+          marksTable.innerHTML = Object.entries(student.marks).map(([subject, mark]) => `
+            <tr>
+              <td>${subject}</td>
+              <td>${mark}</td>
+              <td><button onclick="deleteMark('${rollNumber}', '${subject}')">Delete</button></td>
+            </tr>
+          `).join('');
+        } else {
+          deleteMessage.textContent = 'No student found with this roll number.';
+        }
+      } catch (error) {
+        deleteMessage.textContent = 'Error fetching student: ' + error.message;
+        console.error("Error getting document: ", error);
+      }
+    }
+
+    // Function to delete a mark
+    async function deleteMark(rollNumber, subject) {
+      try {
+        const docRef = db.collection('students').doc(rollNumber);
+        const docSnap = await docRef.get();
+
+        if (docSnap.exists) {
+          const student = docSnap.data();
+          const updatedMarks = {...student.marks};
+          delete updatedMarks[subject];
+
+          await docRef.update({
+            marks: updatedMarks,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          alert(`${subject} marks deleted successfully!`);
+          fetchStudentMarks();
+          displayAllMarks();
+        }
+      } catch (error) {
+        alert('Error deleting mark: ' + error.message);
+        console.error("Error deleting mark: ", error);
+      }
+    }
+
+    // Function to display all uploaded marks
+    async function displayAllMarks() {
+      try {
+        const querySnapshot = await db.collection('students').orderBy('lastUpdated', 'desc').get();
+        const allMarksTable = document.getElementById('allMarksTable');
+        
+        allMarksTable.innerHTML = querySnapshot.docs.map(doc => {
+          const student = doc.data();
+          return `
+            <tr>
+              <td>${student.name}</td>
+              <td>${student.rollNumber}</td>
+              <td>${student.marks.Maths || '-'}</td>
+              <td>${student.marks.Science || '-'}</td>
+              <td>${student.marks.SocialScience || '-'}</td>
+              <td>${student.marks.English || '-'}</td>
+              <td>${student.marks.Language || '-'}</td>
+              <td>${student.marks.ComputerScience || '-'}</td>
+              <td>
+                <button onclick="editMarks('${student.rollNumber}')">Edit</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error("Error getting documents: ", error);
+      }
+    }
+
+    // Function to edit marks (pre-fill form)
+    async function editMarks(rollNumber) {
+      try {
+        const docRef = db.collection('students').doc(rollNumber);
+        const docSnap = await docRef.get();
+
+        if (docSnap.exists) {
+          const student = docSnap.data();
+          
+          document.getElementById('name').value = student.name;
+          document.getElementById('rollNumber').value = student.rollNumber;
+          document.getElementById('maths').value = student.marks.Maths || '';
+          document.getElementById('science').value = student.marks.Science || '';
+          document.getElementById('socialScience').value = student.marks.SocialScience || '';
+          document.getElementById('english').value = student.marks.English || '';
+          document.getElementById('language').value = student.marks.Language || '';
+          document.getElementById('computerScience').value = student.marks.ComputerScience || '';
+
+          // Scroll to form
+          window.scrollTo(0, 0);
+        }
+      } catch (error) {
+        console.error("Error getting document: ", error);
+      }
+    }
+
+    // Function to clear form
+    function clearForm() {
+      document.getElementById('name').value = '';
+      document.getElementById('rollNumber').value = '';
+      document.getElementById('maths').value = '';
+      document.getElementById('science').value = '';
+      document.getElementById('socialScience').value = '';
+      document.getElementById('english').value = '';
+      document.getElementById('language').value = '';
+      document.getElementById('computerScience').value = '';
+    }
+
+    // Function to logout
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = "admin-login.html";
+      }).catch(error => {
+        console.error("Error signing out: ", error);
+      });
+    }
+
+    // Load all marks when page loads
+    displayAllMarks();
+  </script>
+</body>
+</html>

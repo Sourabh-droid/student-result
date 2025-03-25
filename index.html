@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Result Portal</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:#ffffff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-color: white;
+      padding: 15px 30px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      margin-right: 15px;
+    }
+
+    .school-name {
+      font-size: 24px;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    h1 {
+      color: rgb(0, 0, 0);
+      margin-bottom: 20px;
+      font-size: 32px;
+    }
+
+    /* Login Section */
+    #login {
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    #login p {
+      color: #555;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* Input Styles */
+    input {
+      width: 90%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      margin-bottom: 15px;
+    }
+
+    input:focus {
+      border-color: #4CAF50;
+      outline: none;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+    }
+
+    /* Button Styles */
+    button {
+      padding: 12px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      width: 40%;
+    }
+
+    button:hover {
+      background-color: #45a049;
+      transform: translateY(-2px);
+    }
+
+    #uploadMarksButton {
+      margin-top: 15px;
+      background-color: #007bff;
+    }
+
+    #uploadMarksButton:hover {
+      background-color: #0056b3;
+    }
+
+    /* Error Message Styles */
+    .error {
+      color: #ff4444;
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    /* Results Section */
+    #results {
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+      margin-top: 300px;
+    }
+
+    #results h2 {
+      color: #4CAF50;
+      margin-bottom: 20px;
+    }
+
+    #results p {
+      color: #555;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Animation for Container */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #login, #results {
+      animation: fadeIn 0.5s ease-out;
+    }
+  </style>
+</head>
+<body>
+    <div class="header">
+        <img src="fhss_logo-removebg-preview.png" alt="School Logo" class="logo">
+        <div class="school-name">Greenwood High School</div>
+    </div>
+
+  <div id="login">
+    <h1>Student Result Portal</h1>
+    <p>Enter your roll number to view your results:</p>
+    <input type="text" id="rollNumber" placeholder="Roll Number">
+    <button onclick="fetchResults()">View Results</button>
+    <div id="errorMessage" class="error"></div>
+    <button id="uploadMarksButton" onclick="redirectToAdminLogin()">Upload Marks</button>
+  </div>
+
+  <div id="results" style="display: none;">
+    <h2>Your Results</h2>
+    <p><strong>Name:</strong> <span id="studentName"></span></p>
+    <p><strong>Roll Number:</strong> <span id="studentRoll"></span></p>
+    <p><strong>Total Marks:</strong> <span id="totalMarks"></span></p>
+    <p><strong>Percentage:</strong> <span id="percentage"></span>%</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Marks</th>
+        </tr>
+      </thead>
+      <tbody id="resultTable"></tbody>
+    </table>
+    <button onclick="goBack()">Go Back</button>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Your Firebase configuration
+    const firebaseConfig = {
+  apiKey: "AIzaSyAIHEdFbNiRnsPWJ-8CkjdFi911jGoNJ3s",
+  authDomain: "student-result-portal-52f41.firebaseapp.com",
+  projectId: "student-result-portal-52f41",
+  storageBucket: "student-result-portal-52f41.firebasestorage.app",
+  messagingSenderId: "1072394976376",
+  appId: "1:1072394976376:web:4c839ab0f2cda36fb1818d"
+};
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Function to fetch results
+    async function fetchResults() {
+      const rollNumber = document.getElementById('rollNumber').value;
+      const errorMessage = document.getElementById('errorMessage');
+      errorMessage.textContent = ''; // Clear previous error message
+
+      if (!rollNumber) {
+        errorMessage.textContent = 'Please enter a roll number';
+        return;
+      }
+
+      try {
+        // Query Firestore for student with matching rollNumber
+        const querySnapshot = await db.collection('students')
+          .where('rollNumber', '==', rollNumber)
+          .get();
+
+        if (querySnapshot.empty) {
+          errorMessage.textContent = 'No results found for this roll number.';
+          return;
+        }
+
+        // Get the first matching student (assuming rollNumbers are unique)
+        const studentDoc = querySnapshot.docs[0];
+        const student = studentDoc.data();
+
+        // Display results
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('studentName').textContent = student.name;
+        document.getElementById('studentRoll').textContent = student.rollNumber;
+
+        // Calculate total marks and percentage
+        const marks = student.marks;
+        const subjects = Object.keys(marks);
+        const totalMarks = subjects.reduce((sum, subject) => sum + marks[subject], 0);
+        const percentage = ((totalMarks / (subjects.length * 100)) * 100).toFixed(2);
+
+        document.getElementById('totalMarks').textContent = totalMarks;
+        document.getElementById('percentage').textContent = percentage;
+
+        // Display results in table
+        const resultTable = document.getElementById('resultTable');
+        resultTable.innerHTML = subjects.map(subject => `
+          <tr>
+            <td>${subject}</td>
+            <td>${marks[subject]}</td>
+          </tr>
+        `).join('');
+
+      } catch (error) {
+        errorMessage.textContent = 'Error fetching results. Please try again.';
+        console.error("Error fetching document: ", error);
+      }
+    }
+
+    // Function to go back to the login page
+    function goBack() {
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('login').style.display = 'block';
+      document.getElementById('rollNumber').value = ''; // Clear the input field
+      document.getElementById('errorMessage').textContent = ''; // Clear error message
+    }
+
+    // Function to redirect to the admin login page
+    function redirectToAdminLogin() {
+      window.location.href = "admin-login.html";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-color: white;
+      padding: 15px 30px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+      margin-right: 15px;
+    }
+
+    .school-name {
+      font-size: 24px;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      margin-top: 100px;
+    }
+    .login-container h1 {
+      color: #4CAF50;
+      margin-bottom: 20px;
+    }
+    .login-container input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .login-container input:focus {
+      border-color: #4CAF50;
+      outline: none;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+    }
+    .login-container button {
+      padding: 12px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 10px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .login-container button:hover {
+      background-color: #45a049;
+      transform: translateY(-2px);
+    }
+    .error {
+      color: #ff4444;
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    /* Animation for Container */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-container {
+      animation: fadeIn 0.5s ease-out;
+    }
+  </style>
+</head>
+<body>
+    <div class="header">
+        <img src="fhss_logo-removebg-preview.png" alt="School Logo" class="logo">
+        <div class="school-name">Greenwood High School</div>
+    </div>
+
+  <div class="login-container">
+    <h1>Admin Login</h1>
+    <input type="email" id="email" placeholder="Admin Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <div id="errorMessage" class="error"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Your Firebase configuration
+    const firebaseConfig = {
+  apiKey: "AIzaSyAIHEdFbNiRnsPWJ-8CkjdFi911jGoNJ3s",
+  authDomain: "student-result-portal-52f41.firebaseapp.com",
+  projectId: "student-result-portal-52f41",
+  storageBucket: "student-result-portal-52f41.firebasestorage.app",
+  messagingSenderId: "1072394976376",
+  appId: "1:1072394976376:web:4c839ab0f2cda36fb1818d"
+};
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Check if user is already logged in
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        // Redirect to upload page if already logged in
+        window.location.href = "upload.html";
+      }
+    });
+
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('errorMessage');
+
+      // Basic validation
+      if (!email || !password) {
+        errorMessage.textContent = "Please enter both email and password";
+        return;
+      }
+
+      // Sign in with Firebase Authentication
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          // Login successful, redirect to upload page
+          window.location.href = "upload.html";
+        })
+        .catch(error => {
+          // Handle errors
+          switch (error.code) {
+            case 'auth/invalid-email':
+              errorMessage.textContent = "Invalid email format";
+              break;
+            case 'auth/user-disabled':
+              errorMessage.textContent = "This account has been disabled";
+              break;
+            case 'auth/user-not-found':
+              errorMessage.textContent = "No account found with this email";
+              break;
+            case 'auth/wrong-password':
+              errorMessage.textContent = "Incorrect password";
+              break;
+            default:
+              errorMessage.textContent = "Login failed. Please try again.";
+              console.error("Login error:", error);
+          }
+        });
+    }
+  </script>
+</body>
+</html>
